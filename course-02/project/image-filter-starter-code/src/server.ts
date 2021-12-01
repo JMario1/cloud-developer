@@ -1,6 +1,7 @@
-import express from 'express';
+import express, {Request, response, Response} from 'express';
 import bodyParser from 'body-parser';
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
+
 
 (async () => {
 
@@ -28,6 +29,32 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   //   the filtered image file [!!TIP res.sendFile(filteredpath); might be useful]
 
   /**************************************************************************** */
+  app.get("/filteredimage", async ( req: Request, res: Response) => {
+    let {image_url} = req.query;
+    if (!image_url){
+      res
+      .status(421)
+      .send("The image url must be pass");
+      return 
+    }
+
+    await filterImageFromURL(image_url)
+    .then((filteredImagePath: string)=> {
+      let itemToDelete: Array<string> = [filteredImagePath];
+      res
+      .status(200)
+      .sendFile(filteredImagePath, async(err)=> {
+        if(err){
+          res.status(501).send("error processing file")
+        }
+        else{
+        deleteLocalFiles(itemToDelete)
+        }
+      });
+      })
+    .catch((err) => res.status(404).send("file not found or image does not have public access"))
+    
+  })
 
   //! END @TODO1
   
