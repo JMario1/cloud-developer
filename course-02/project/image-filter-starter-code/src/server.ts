@@ -33,7 +33,7 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
     let {image_url} = req.query;
     if (!image_url){
       res
-      .status(421)
+      .status(422)
       .send("The image url must be pass");
       return 
     }
